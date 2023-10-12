@@ -2,7 +2,6 @@ package game.gameoflife;
 
 
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 
 import java.util.Random;
@@ -14,8 +13,9 @@ public class Grid {
     private final double gridWidth;
     private final double gridHeight;
 
-    private final double nodeWidth;
-    private final double nodeHeight;
+    public double nodeSize;
+    public double xOffSet;
+
 
     public Node [][] grid;
 
@@ -24,23 +24,24 @@ public class Grid {
         this.gridHeight = gridHeight;
         this.sceneWidth = sceneWidth;
         this.sceneHeight = sceneHeight;
-        this.nodeWidth = sceneWidth / (gridWidth + 2);
-        this.nodeHeight = sceneHeight / (gridHeight + 2);
+
+        this.nodeSize = sceneHeight / (gridHeight + 2);
+
+
         this.grid = generateGrid(empty);
     }
     private Node [][] generateGrid(boolean empty) {
         int gridWidth = (int)this.gridWidth;
         int gridHeight = (int)this.gridHeight;
-        Node [][] grid = new Node[gridWidth + 2][gridHeight + 2];
+        Node [][] grid = new Node[gridHeight + 2][gridWidth + 2];
         Random rand = new Random();
         int upperbound = 2;
-
+        this.xOffSet = (sceneWidth % nodeSize) / 2;
         for (int row = 0; row < grid.length; row++) {
             for (int column = 0; column < grid[row].length; column++){
-
-                Node node = new Node(3, column * nodeWidth, row * nodeHeight, nodeWidth, nodeHeight);
+                Node node = new Node(3, (column * nodeSize) +  xOffSet, row * nodeSize, nodeSize);
                 grid[row][column] = node;
-                if(row == 0 || row == this.gridHeight + 1 || column == 0 || column == this.gridWidth + 1) {
+                if(column == 0 || column == (this.gridWidth + 1) || row == 0 || row == (this.gridHeight + 1)) {
                     grid[row][column].value = 2;
                 }
                 else {
@@ -74,24 +75,29 @@ public class Grid {
                         if (alive == 2 || alive == 3) {
                             grid[row][column].value = 1;
                             grid[row][column].rectangle.setFill(Color.GREEN);
-                            grid[row][column].rectangle.setStroke(Color.GREEN);
+                            grid[row][column].rectangle.setStroke(Color.BLUE);
+                            grid[row][column].rectangle.setStrokeWidth(0.1);
                         }
                         else {
                             grid[row][column].value = 0;
                             grid[row][column].rectangle.setFill(Color.BLACK);
-                            grid[row][column].rectangle.setStroke(Color.BLACK);
+                            grid[row][column].rectangle.setStroke(Color.BLUE);
+                            grid[row][column].rectangle.setStrokeWidth(0.1);
                         }
                     }
                     if (tempGrid[row][column] == 0) {
                         if (alive == 3) {
                             grid[row][column].value = 1;
                             grid[row][column].rectangle.setFill(Color.GREEN);
-                            grid[row][column].rectangle.setStroke(Color.GREEN);
+                            grid[row][column].rectangle.setStroke(Color.BLUE);
+                            grid[row][column].rectangle.setStrokeWidth(0.1);
                         }
                         else {
                             grid[row][column].value = 0;
                             grid[row][column].rectangle.setFill(Color.BLACK);
-                            grid[row][column].rectangle.setStroke(Color.BLACK);
+                            grid[row][column].rectangle.setStroke(Color.BLUE);
+                            grid[row][column].rectangle.setStrokeWidth(0.1);
+
                         }
                     }
 
@@ -101,7 +107,7 @@ public class Grid {
     }
 
     private int [][] tempGridGenerate(){
-        int [][] tempGrid = new int[(int) (gridWidth+2)][(int) (gridHeight+2)];
+        int [][] tempGrid = new int[(int) (this.gridHeight+2)][(int) (this.gridWidth+2)];
         for (int row = 0; row < grid.length; row++) {
             for (int column = 0; column < grid[row].length; column++) {
                 tempGrid[row][column] = grid[row][column].value;
@@ -140,17 +146,18 @@ public class Grid {
         return count;
     }
 
-    public Scene displayGrid() {
+    public Group displayGrid() {
         Group root = new Group();
 
-        for (Node[] nodes : grid) {
-            for (Node node : nodes) {
-                node.displayNode();
-                root.getChildren().add(node);
+
+        for (int row = 0; row < grid.length; row++) {
+            for (int column = 0; column < grid[row].length; column++) {
+                grid[row][column].displayNode();
+                root.getChildren().add(grid[row][column]);
             }
         }
 
-        return new Scene(root, this.sceneWidth, this.sceneHeight);
+        return root;
     }
 
 }
