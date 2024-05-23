@@ -22,14 +22,15 @@ import javafx.util.Duration;
 
 public class Game extends Application {
 
-    private double sceneWidth = 1920;
-    private double sceneHeight = 1080;
+    private final double sceneWidth = 1920;
+    private final double sceneHeight = 1080;
 
     private final double gridHeight = 50;
 
     private final double gridWidth = (int)((sceneWidth / sceneHeight) * gridHeight + 2);
 
-    Grid grid = new Grid(gridWidth, gridHeight, sceneWidth, sceneHeight, false);
+    private final Grid grid = new Grid(gridWidth, gridHeight, sceneWidth, sceneHeight, false);
+    private final Timeline line = new Timeline(new KeyFrame(Duration.seconds(0.1), arg0 -> grid.updateGrid()));
 
     private Group root;
     private Scene scene;
@@ -45,10 +46,11 @@ public class Game extends Application {
         window.setFullScreen(true);
         window.show();
 
-        Timeline line = new Timeline(new KeyFrame(Duration.seconds(0.1), arg0 -> grid.updateGrid()));
+
         line.setCycleCount(Animation.INDEFINITE);
 
         scene.setOnKeyReleased(e -> onKeyReleaseProperty(e, line));
+        scene.setOnKeyPressed(e -> onKeyPressedProperty(e, line));
         scene.setOnMouseClicked(this::onMouseClickedProperty);
         scene.setOnScroll(this::onScrollProperty);
     }
@@ -72,11 +74,16 @@ public class Game extends Application {
 
     private void onKeyReleaseProperty(KeyEvent e, Timeline line) {
         if (e.getCode() == KeyCode.S) {
-            line.play();
+            if (line.getStatus() == Animation.Status.STOPPED || line.getStatus() == Animation.Status.PAUSED) {
+                line.play();
+            }
+            else {
+                line.pause();
+            }
         }
-        if (e.getCode() == KeyCode.P) {
-            line.pause();
-        }
+    }
+
+    private void onKeyPressedProperty(KeyEvent e, Timeline line) {
         if (e.getCode() == KeyCode.N) {
             grid.updateGrid();
         }
